@@ -1,6 +1,7 @@
 import express from "express";
 import { initDB } from "./config/db";
 import userRoutes from "./modules/users/user.routes";
+import vehicleRoutes from "./modules/vehicles/vehicle.routes";
 const app = express();
 
 app.use(express.json());
@@ -9,6 +10,8 @@ initDB();
 
 
 app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/vehicles", vehicleRoutes);
+
 
 // app.get("/", (req, res) => {
 //   res.send("Vehicle Rental API - users feature ready");

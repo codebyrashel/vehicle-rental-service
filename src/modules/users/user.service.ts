@@ -64,7 +64,7 @@ const getAllUsers = async () => {
 
 const getUserById = async (id: number) => {
   const result = await pool.query(
-    `SELECT id, name, email, phone, role, created_at FROM users WHERE id = $1`,
+    `SELECT * FROM users WHERE id = $1`,
     [id]
   );
   return result;
