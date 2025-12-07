@@ -2,7 +2,7 @@ import { Response } from "express";
 import { userService } from "./user.service";
 import { AuthRequest } from "../../middleware/auth.middleware"; 
 
-// Admin: get all users
+
 const getAllUsers = async (req: AuthRequest, res: Response) => {
   try {
     const result = await userService.getAllUsers();
@@ -12,13 +12,11 @@ const getAllUsers = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// Admin or customer (self): get one user by ID
 const getUserById = async (req: AuthRequest, res: Response) => {
   try {
     const userId = parseInt(req.params.userId!, 10);
     const requester = req.user!;
 
-    // Customers may view only their own profile
     if (requester.role === "customer" && requester.userId !== userId) {
       return res.status(403).json({
         success: false,
@@ -37,7 +35,6 @@ const getUserById = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// Admin or customer (self): update one user
 const updateUserById = async (req: AuthRequest, res: Response) => {
   try {
     const userId = parseInt(req.params.userId!, 10);
@@ -65,7 +62,6 @@ const updateUserById = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// Admin: delete user
 const deleteUserById = async (req: AuthRequest, res: Response) => {
   try {
     const userId = parseInt(req.params.userId!, 10);
@@ -76,6 +72,13 @@ const deleteUserById = async (req: AuthRequest, res: Response) => {
       message: "User deleted successfully",
     });
   } catch (error: any) {
+    
+    if (error.message.includes("active bookings")) {
+      return res.status(400).json({
+        success: false,
+        message: error.message,
+      });
+    }
     res.status(500).json({ success: false, message: error.message });
   }
 };

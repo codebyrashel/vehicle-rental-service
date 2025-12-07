@@ -22,7 +22,8 @@ A backend API for a vehicle rental management system that manages vehicle invent
 
 ## 📍The Process
 
-I started this project by setting up foundation using Express and TypeScript to ensure the codebase is structured, typed, and scalable from the beginning. The goal is to build a modular backend where each feature, authentication, users, vehicles, and bookings is separated into clear layers. PostgreSQL integration is the next step, followed by implementing the core business logic. This README will evolve as the system becomes more fully featured, but the groundwork for the API is officially in place.
+
+I started this project by setting up a solid backend foundation using Express and TypeScript to keep the code strongly typed, modular, and easy to maintain. After establishing the environment and PostgreSQL integration, I built out the authentication system with JWT and bcrypt to handle secure signup and login for both admin and customer roles. From there, I implemented individual modules for users, vehicles, and bookings each split into routes, controllers, and services for clear separation of concerns. Business rules such as automatic vehicle availability updates, prevention of deletions when active bookings exist, and total price calculations were introduced and refined through continuous testing in Thunder Client. I also added role‑based visibility so that customers can only see and manage their own bookings, while admins can oversee the entire system. Finally, validation, error messaging, and user‑friendly responses (like notifying first‑time customers who have no bookings) were included to make the API polished, reliable, and production‑ready.
 
 ## 🚦 Running the Project
 

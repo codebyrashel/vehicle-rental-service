@@ -8,7 +8,6 @@ export interface VehiclePayload {
   availability_status?: "available" | "booked";
 }
 
-// Create a new vehicle
 const createVehicle = async (payload: VehiclePayload) => {
   const { vehicle_name, type, registration_number, daily_rent_price, availability_status } = payload;
 
@@ -22,19 +21,18 @@ const createVehicle = async (payload: VehiclePayload) => {
   return result;
 };
 
-// Get all vehicles
+
 const getAllVehicles = async () => {
   const result = await pool.query(`SELECT * FROM vehicles ORDER BY id ASC`);
   return result;
 };
 
-// Get a single vehicle by ID
+
 const getVehicleById = async (id: number) => {
   const result = await pool.query(`SELECT * FROM vehicles WHERE id = $1`, [id]);
   return result;
 };
 
-// Update vehicle details
 const updateVehicleById = async (
   id: number,
   payload: Partial<VehiclePayload>
@@ -43,12 +41,12 @@ const updateVehicleById = async (
 
   const result = await pool.query(
     `UPDATE vehicles
-     SET vehicle_name = COALESCE($1, vehicle_name),
-         type = COALESCE($2, type),
-         registration_number = COALESCE($3, registration_number),
-         daily_rent_price = COALESCE($4, daily_rent_price),
-         availability_status = COALESCE($5, availability_status),
-         updated_at = NOW()
+       SET vehicle_name       = COALESCE($1, vehicle_name),
+           type               = COALESCE($2, type),
+           registration_number = COALESCE($3, registration_number),
+           daily_rent_price   = COALESCE($4, daily_rent_price),
+           availability_status = COALESCE($5, availability_status),
+           updated_at          = NOW()
      WHERE id = $6
      RETURNING *`,
     [
@@ -64,10 +62,37 @@ const updateVehicleById = async (
   return result;
 };
 
-// Delete vehicle
+
 const deleteVehicleById = async (id: number) => {
-  const result = await pool.query(`DELETE FROM vehicles WHERE id = $1 RETURNING *`, [id]);
-  return result;
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    const activeRes = await client.query(
+      `SELECT id
+         FROM bookings
+        WHERE vehicle_id = $1 AND status = 'active'`,
+      [id]
+    );
+
+    if (activeRes.rows.length > 0) {
+      throw new Error("Cannot delete vehicle with active bookings");
+    }
+
+    const result = await client.query(
+      `DELETE FROM vehicles WHERE id = $1 RETURNING *`,
+      [id]
+    );
+
+    await client.query("COMMIT");
+    return result;
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
 };
 
 export const vehicleService = {

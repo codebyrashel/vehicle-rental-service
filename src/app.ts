@@ -3,6 +3,7 @@ import { initDB } from "./config/db";
 import userRoutes from "./modules/users/user.routes";
 import authRoutes from "./modules/auth/auth.routes";
 import vehicleRoutes from "./modules/vehicles/vehicles.routes";
+import bookingRoutes from "./modules/bookings/booking.routes";
 const app = express();
 
 app.use(express.json());
@@ -13,11 +14,8 @@ initDB();
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/vehicles", vehicleRoutes);
+app.use("/api/v1/bookings", bookingRoutes);
 
-
-// app.get("/", (req, res) => {
-//   res.send("Vehicle Rental API - users feature ready");
-// });
 
 
 app.use((req, res) => {

@@ -3,7 +3,7 @@ import path from "path";
 
 dotenv.config({ path: path.join(process.cwd(), ".env") });
 
-//? helper to validate env variables
+// to validate env variables
 const getENV = (key: string, defaultValue?: string): string => {
   const value = process.env[key] || defaultValue;
 
