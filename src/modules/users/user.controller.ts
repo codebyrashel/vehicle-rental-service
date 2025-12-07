@@ -1,37 +1,9 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { userService } from "./user.service";
+import { AuthRequest } from "../../middleware/auth.middleware"; 
 
-const createUser = async (req: Request, res: Response) => {
-  const { name, email, password, phone, role } = req.body;
-  if (!name || !email || !password) {
-    return res.status(400).json({ success: false, message: "Name, email, and password are required" });
-  }
-  try {
-    console.log("Attempting to create user...");
-    const result = await userService.createUser(req.body);
-    console.log("User created successfully, sending response.");
-    res.status(201).json({ success: true, data: result.rows[0], message: "User registered successfully" });
-  } catch (error: any) {
-    console.error("Error creating user:", error);
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-const loginUser = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    return res.status(400).json({ success: false, message: "Email and password are required" });
-  }
-  try {
-    const { email, password } = req.body;
-    const result = await userService.loginUser(email, password);
-    res.status(200).json({ success: true, data: result.user, token: result.token, message: "Login successful" });
-  } catch (error: any) {
-    res.status(401).json({ success: false, message: error.message });
-  }
-};
-
-const getAllUsers = async (req: Request, res: Response) => {
+// Admin: get all users
+const getAllUsers = async (req: AuthRequest, res: Response) => {
   try {
     const result = await userService.getAllUsers();
     res.status(200).json({ success: true, data: result.rows });
@@ -40,12 +12,21 @@ const getAllUsers = async (req: Request, res: Response) => {
   }
 };
 
-// Get a specific user by ID
-const getUserById = async (req: Request, res: Response) => {
+// Admin or customer (self): get one user by ID
+const getUserById = async (req: AuthRequest, res: Response) => {
   try {
-    const { userId } = req.params
-    const result = await userService.getUserById(userId as any);
+    const userId = parseInt(req.params.userId!, 10);
+    const requester = req.user!;
 
+    // Customers may view only their own profile
+    if (requester.role === "customer" && requester.userId !== userId) {
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden: you can only view your own profile",
+      });
+    }
+
+    const result = await userService.getUserById(userId);
     if (result.rows.length === 0) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
@@ -56,12 +37,20 @@ const getUserById = async (req: Request, res: Response) => {
   }
 };
 
-// Update user by ID
-const updateUserById = async (req: Request, res: Response) => {
+// Admin or customer (self): update one user
+const updateUserById = async (req: AuthRequest, res: Response) => {
   try {
     const userId = parseInt(req.params.userId!, 10);
-    const result = await userService.updateUserById(req.body, userId);
+    const requester = req.user!;
 
+    if (requester.role === "customer" && requester.userId !== userId) {
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden: you can only update your own profile",
+      });
+    }
+
+    const result = await userService.updateUserById(req.body, userId);
     if (result.rows.length === 0) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
@@ -76,8 +65,8 @@ const updateUserById = async (req: Request, res: Response) => {
   }
 };
 
-// Delete user by ID
-const deleteUserById = async (req: Request, res: Response) => {
+// Admin: delete user
+const deleteUserById = async (req: AuthRequest, res: Response) => {
   try {
     const userId = parseInt(req.params.userId!, 10);
     await userService.deleteUserById(userId);
@@ -91,4 +80,9 @@ const deleteUserById = async (req: Request, res: Response) => {
   }
 };
 
-export const userController = { createUser, loginUser, getAllUsers, getUserById, updateUserById, deleteUserById };
+export const userController = {
+  getAllUsers,
+  getUserById,
+  updateUserById,
+  deleteUserById,
+};

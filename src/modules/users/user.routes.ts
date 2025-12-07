@@ -4,10 +4,6 @@ import { requireAuth } from "../../middleware/auth.middleware";
 
 const router = Router();
 
-// Public routes
-router.post("/signup", userController.createUser);
-router.post("/signin", userController.loginUser);
-
 // Admin‑only: view all users
 router.get("/", requireAuth(["admin"]), userController.getAllUsers);
 

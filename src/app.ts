@@ -1,7 +1,8 @@
 import express from "express";
 import { initDB } from "./config/db";
 import userRoutes from "./modules/users/user.routes";
-import vehicleRoutes from "./modules/vehicles/vehicle.routes";
+import authRoutes from "./modules/auth/auth.routes";
+import vehicleRoutes from "./modules/vehicles/vehicles.routes";
 const app = express();
 
 app.use(express.json());
@@ -10,6 +11,7 @@ initDB();
 
 
 app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/vehicles", vehicleRoutes);
 
 
