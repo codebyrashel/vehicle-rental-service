@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { vehicleService } from "./vehicle.service";
+import { bookingService } from "../bookings/booking.service";
 
 // Admin: create vehicle
 const createVehicle = async (req: Request, res: Response) => {
@@ -35,6 +36,7 @@ const createVehicle = async (req: Request, res: Response) => {
 // Public: get all vehicles
 const getAllVehicles = async (req: Request, res: Response) => {
   try {
+    await bookingService.autoReturnExpiredBookings();
     const result = await vehicleService.getAllVehicles();
     res.status(200).json({ success: true, data: result.rows });
   } catch (error: any) {
