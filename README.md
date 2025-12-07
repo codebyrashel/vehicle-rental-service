@@ -29,5 +29,13 @@ I started this project by setting up a solid backend foundation using Express an
 
 1. Clone the repository
 2. Install dependencies: `npm install`
-3. Run development server: `npm run dev`
-4. Open `http://localhost:5000` in your browser
+3. Set up Environment Variables: `Create a .env file in the root directory with the following variables:`
+
+```
+PORT=5000
+DATABASE_URL=your_postgresql_DATABASE_URL
+JWT_SECRET=your_jwt_secret_key 
+```
+
+4. Run development server: `npm run dev`
+5. Open `http://localhost:5000` in your browser
